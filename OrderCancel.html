@@ -1,0 +1,534 @@
+
+<!DOCTYPE html>
+<!DOCTYPE html>
+
+<html>
+
+<!-- Mirrored from bookmyhsrp.com/OrderCancel.aspx by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 09 Dec 2023 14:35:37 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" /><title>
+	BOOK-MY-HSRP
+</title><meta name="Keywords" /><meta name="Description" /><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" /><meta http-equiv="Pragma" content="no-cache" /><meta http-equiv="Expires" content="0" /><meta name="theme-color" content="#000000" /><meta name="msapplication-navbutton-color" content="#000000" /><meta name="apple-mobile-web-app-status-bar-style" content="#000000" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" /><link rel="stylesheet" href="assets/css/bootstrap-datepicker3.min.css" /><link rel="stylesheet" href="assets/css/owl.carousel.min.css" /><link rel="stylesheet" href="assets/css/loading.css" /><link rel="stylesheet" href="assets/css/app64e5.css?1603105793" /><link rel="shortcut icon" href="assets/img/fav.png" />
+
+
+    	<script src="Scripts/jquery-3.5.1.min.js"></script>
+
+
+    <script src="assets/js/BMHSRP.js"></script>
+    <style>
+        .addwrapper {padding: 0 10px;}
+        .footerLink li a{font-weight:bold;color: inherit;}
+        .header-logos .logo1 {width: 130px;margin-top:5px;}
+        .header-logos .logo2 {width: 130px;margin-top:5px;}
+    </style>
+
+    <script type="text/javascript" language="javascript">
+        function DisableBackButton() {
+            window.history.forward()
+        }
+        DisableBackButton();
+        window.onload = DisableBackButton;
+        window.onpageshow = function (evt) { if (evt.persisted) DisableBackButton() }
+        window.onunload = function () { void (0) }
+    </script>
+
+    
+    <style>
+        .check-status-page{
+            height: auto !important;
+        }
+
+        @media (min-width: 320px) and (max-width: 767px){
+            .btn-grp{
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .btn-grp button, .btn-grp .filled{
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0px !important;
+                text-align: center;
+            }
+        }
+    </style>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+    DrawCaptcha();
+});
+</script>      
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+           
+            $('#txtSearch').click(function () {
+                if (!ValidCaptcha()) { return false; }
+
+                var Orderno = $('#txtorderno').val();
+
+                var VehicleNo = $('#txtvehiclereg').val();
+
+                if (Orderno == '' || VehicleNo == '')
+                {
+                    //alert('Orderno and VehicleNo should not be Blank!!');
+                    alert("Orderno and VehicleNo should not be Blank");
+                    return false;
+                }
+
+                if (Orderno.includes("'")) {
+                    //alert('Invalid orderno !')
+                    alert("Invalid orderno !");
+                    return false;
+                }
+                if (VehicleNo.includes("'")) {
+                    //alert('Invalid Vehicle no !')
+                    alert("Invalid Vehicle reg no !");
+                    return false;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "api/Get/OrderNoCancel?orderno=" + Orderno + " &vehicleRegno= " + VehicleNo,
+
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response != '') 
+                        {
+                            var user = JSON.parse(response);
+                            if (user.ORDER_NUMBER == '' || user.REG_NUMBER == '') { return false; }
+                            //if (user.OrderStatus != 'Success') { alert("this order is already cancel"); return false;}
+                            if (user.isAbleToCancelled == 'Y')
+                            {
+                                //var url = "OrderCancleConfirm.aspx?ORDER_NUMBER=" + Orderno + "&REG_NUMBER=" + VehicleNo;
+                                var url = "OrderCancelOTP.aspx";
+                                window.location.href = url;
+                            }
+                            else
+                            {
+                                //alert("You will not be able to cancel this order ");
+                                alert("You will not be able to cancel this order");
+                                window.location.href = "OrderCancel.html";
+                            }
+                        }
+                        else {
+                            
+                            //alert("Please check OrderNo and Vehicle RegistrationNo or it May be already CANCEL !!");
+                            alert("Please check OrderNo and Vehicle RegistrationNo or it May be already CANCEL !!");
+                        }
+                    },
+                    error: function (response) {
+                        
+                        //alert(response.responseText);
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        //Created / Generates the captcha function    
+        function DrawCaptcha() {
+            var a = Math.ceil(Math.random() * 10) + '';
+            var b = Math.ceil(Math.random() * 10) + '';
+            var c = Math.ceil(Math.random() * 10) + '';
+            var d = Math.ceil(Math.random() * 10) + '';
+            //var e = Math.ceil(Math.random() * 10)+ '';  
+            //var f = Math.ceil(Math.random() * 10)+ '';  
+            //var g = Math.ceil(Math.random() * 10)+ '';  
+            //var code = a + ' ' + b + ' ' + ' ' + c + ' ' + d + ' ' + e + ' '+ f + ' ' + g;
+            var code = a + ' ' + b + ' ' + ' ' + c + ' ' + d;
+            document.getElementById("txtCaptcha").value = code
+        }
+
+        // Validate the Entered input aganist the generated security code function   
+        function ValidCaptcha() {
+            var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
+            var str2 = removeSpaces(document.getElementById('txtInput').value);
+            if (str2 == '') {
+                //alert("Captcha can't be blank!!");
+                alert("Captcha can't be blank!!");
+                return false;
+            }
+            else if (str1 == str2) {
+                return true;
+            }
+            else {
+                //alert("Please Input Correct Captcha");
+                alert("Please Input Correct Captcha");
+                return false;
+            }
+
+
+
+
+        }
+
+        // Remove the spaces from the entered and generated code
+        function removeSpaces(string) {
+            return string.split(' ').join('');
+        }
+        function blockSpecialCharforreg(e) {
+            var k;
+            document.all ? k = e.keyCode : k = e.which;
+            return ((k > 64 && k < 91) || (k > 96 && k < 123) || k == 8 || (k >= 48 && k <= 57));
+        }
+
+    </script>
+
+    <script type="text/javascript">
+        $(window).load(function () {
+            DrawCaptcha();
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function ()
+        {
+            $('#txtCancel').click(function ()
+            {
+                var url = "Index.aspx";
+                window.location.href = url;
+                return false;
+            });
+        });
+    </script>
+
+ </head>
+<body>
+    <form method="post" action="https://bookmyhsrp.com/OrderCancel.aspx" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="mKF/T3cUQi8Nc75XzvdLQ84QoQhw/qBtgogekUmCrQzw82oRKgnwD4OSTYz2ZoaHn82JesPOAky7TfrPCv04bd5cmzb4I0E85AM7wyjHQzFGBw36FQCpXXcwhZ4jYRclO7lC3unyShvxVU40LFS5ug==" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="042D19AC" />
+</div>
+        
+        
+<div class="loader"></div>
+       
+
+<div class="section" >
+    
+
+    
+
+
+<!-- Google search console code -->
+<meta name="google-site-verification" content="CTiKH7YH8YoVEhwr1YG8zb9Hw5-Y-ymzuZylv94oReg" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MXFC61XR3H"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-MXFC61XR3H');
+</script>
+<!-- End Global site tag (gtag.js) - Google Analytics -->
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '707852008145931');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=707852008145931&amp;ev=PageView&amp;noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+
+
+
+
+
+<style>
+    .ReplacementHeading {
+        -webkit-box-shadow: 10px 9px 21px -8px rgba(0,0,0,0.75);
+        -moz-box-shadow: 10px 9px 21px -8px rgba(0,0,0,0.75);
+        box-shadow: 10px 9px 21px -8px rgba(0,0,0,0.75);
+        border: 1px solid rgba(0,0,0,0.75);
+        font-size: 13.87pt;
+    }
+
+    .Bar {
+        font-weight: 600;
+        color: #231f20;
+        font-size: 13.87pt;
+        /*padding: 15px 13px;*/
+        padding: 15px 13px 15px 0px;
+        position: relative;
+        text-align: center;
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .blink_me {
+        animation: blinker 1s linear infinite;
+    }
+
+    .blink_me_rep {
+        animation: blinker 1.5s linear infinite;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+</style>
+
+
+
+
+
+<style>
+    div.logo2 span {
+        display: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #333;
+        color: #fff;
+    }
+
+    div.logo2:hover span {
+        display: table;
+        background-image: url('wow/QR.jpg');
+        z-index: 550;
+        top: 75px;
+        left: 30%;
+    }
+</style>
+<header>
+    <a href="index-4.html">
+        <div class="logo font4">BOOK-MY-HSRP<i></i><i></i><i></i><i></i></div>
+    </a>
+    
+    
+    
+    
+    
+
+    <div class="header-logos">
+        <div class="logo1" style="border: solid 2px #fff; box-shadow: none;">
+            <img src="assets/img/rosmerta_hsrp_logo.png"></div>
+        <div class="logo2" style="border: solid 2px #fff; box-shadow: none; width: 140px;">
+            <a href="https://play.google.com/store/apps/details?id=com.raasta" target="_blank">
+                <img src="assets/img/RB-6.jpg" /></a>
+            <span class="tooltiptext">
+                <img src="wow/QR.jpg"></span>
+        </div>
+
+        
+        
+
+        
+    </div>
+
+    
+    <ul class="menu">
+        <li class="ReplacementHeading" style="display: none"><a class="blink_me_rep" href="Plate/ReplacementBooking-2.html" style="color: #b11b20; font-size: large"><b>Replacement Booking &nbsp</b> </a>
+            
+             
+        </li>
+        <li><a href="TrackOrder.html" class="active1"><b>
+            Track Your Order</b></a></li>
+
+        
+        <li><a href="ReAppointment.html"><b>
+            Reschedule Appointment</b></a></li>
+        <li><a href="OrderCancel.html"><b>
+            Cancel Order</b></a></li>
+        <li><a href="PinForHomeDelivery.html"><b>
+            Check For Home Installation</b></a></li>
+
+
+        <li><a href="ReceiptValidity.html"><b>
+            Receipt Validity</b></a></li>
+        <li><a href="BookMyHSRP_ContactUs.html"><b>
+            Contact Us</b></a></li>
+        
+        
+
+        
+        
+
+        
+        <li>
+            </li>
+    </ul>
+    <div class="menubutton">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</header>
+<div class="megamenu"></div>
+
+    
+    <div class="row" style="text-align: center;margin-bottom: 4px;display:none">
+        <div class="col-md-12 col-sm-12">
+                <h3 style="color: #302c2c;font-style: italic;font-weight: 900;"> Download MyRaasta App Now</h3>
+        </div>
+        <div class="col-md-12 col-sm-12">
+            <a target="_blank" href="https://play.google.com/store/apps/details?id=com.raasta" id="googlePlay">
+                 <img src="assets/img/gplay.png" class="img" style="width: 120px;"/>
+            </a>
+
+            <a target="_blank" href="https://apps.apple.com/in/app/raasta-autotech/id1588551229" id="iosPlay">
+                <img src="assets/img/appstore.png" class="img" style="width: 120px;"/>
+            </a>
+           
+            
+        </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+        $(window).load(function () {
+            DrawCaptcha();
+        });
+    </script>
+
+    <div class="app inner-pages check-status-page clearfix color1">
+        <div class="check-status-form addedspace">
+            <h4> Order Cancellation & Refund </h4>
+            
+
+                              
+      <div class="form-data clearfix">
+                <div class="control">
+                    <label for="orderno">Order number: *</label>
+                    <input type="text" name="orderno" autocomplete="off" id="txtorderno"  placeholder="DLHSRP1221XXXXXX" maxlength="28" required="">
+                </div>
+                <div class="control">
+                    <label for="vehiclereg">Vehicle Reg No: *</label>
+                    <input type="text" name="vehiclereg" autocomplete="off" id="txtvehiclereg" onkeyup="this.value = this.value.toUpperCase();" 
+                                                   onkeypress="return blockSpecialCharforreg(event);"  maxlength="10"   placeholder="DL01ABXXXX" required="">
+                </div>
+
+                <div class="control">
+                    <div class="captcha-input rightmargin-xs">
+                        <label for="orderno">Captcha::</label>
+                        <!--<input type="text" name="captchaorderno" id="txtcaptcha" placeholder="" required="">-->
+                        <input type="text" name="Captcha" id="txtCaptcha"  readonly="readonly" placeholder="Input Captcha" required="" />
+
+
+                    </div>
+                    <div class="captcha-img">
+                        
+                        <!--<img  class="topmargin-sm" id="captcha" src="../assets/img/captcha.png" alt="">-->
+                        <button type="button" id="btnReferesh" onclick="DrawCaptcha();">
+                            <img src="assets/img/reload-icon.png"></button>
+
+                    </div>
+
+                </div>
+                <div class="control">
+                    <div class="captcha-input rightmargin-xs">
+                        <label for="InputCaptcha" >Input Captcha::</label>
+                        <input type="text" id="txtInput"  autocomplete="off" maxlength="12" />
+                    </div>
+                </div>
+
+            </div>
+                               
+                                
+                               <div class="form-data isforced clearfix">
+                                      <div class="control btn-grp">
+                                          <button id="txtSearch">Search</button>
+                                          <button id="txtCancel">Cancel</button>
+                                      </div>
+
+                                </div>
+ 
+
+
+               
+
+
+
+        
+           
+        </div>
+    </div>
+
+    
+    <footer>
+        <ul >   
+            
+               
+                        
+            <!--<li><a href="../Document/Pincode.pdf" target="_blank" style="color:black"><b>PIN FOR HOME DELIVERY</b></a></li>-->
+            
+            <li><a href="BookMyHSRP_HSRPFAQ.html" style="color:black"><b>FAQ</b></a></li>
+            <li><a href="BookMyHSRP_privacypolicy.html">Privacy Policy</a></li>
+            <li><a href="assets/pdf/Refund_cancellationNew.pdf" target="_blank">Refund & Cancellation Policy</a></li>
+            <li><a href="BookMyHSRP_safe-secure-transaction.html">Safe & Secure Transaction</a></li>
+            <li><a href="BookMyHSRP_termsofuse.html">Terms & Conditions</a></li>
+            
+            <li><a href="GovNotification.html">Government Notifications</a></li>
+            <li><a href="assets/pdf/HSRP_features.pdf" target="_blank">About HSRP</a></li>
+           
+            <li><a href="GrievanceSelectState.html" style="color:black"><b>Grievance Redressal</b></a></li>
+            <li><a href="DownloadReceipt.html" style="color:black"><b>Reprint Receipt</b></a></li>
+
+              
+           
+            
+              
+                
+<marquee behavior="scroll" direction="left" scrollamount="10" style="font-weight: 600;color: #b11b20;font-size: 13.87pt;" onMouseOver="this.stop()" onMouseOut="this.start()"> Booking Available for state of <span style="font-size:22px;"><b>Karnataka, Madhya Pradesh, Andhra Pradesh, Assam</b></span>, Bihar, Gujarat, Himachal Pradesh, Odisha, Uttar Pradesh, West Bengal and NCT of Delhi. </marquee>
+        </ul>
+        
+        <p class="copyright"  style="width:160px;">© 2020 BOOKMYHSRP</p>
+    </footer>
+</div>
+
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap-datepicker.min.js"></script>
+<script src="assets/js/owl.carousel.js"></script>
+<script src="assets/js/app9319.js?1603105714"></script>
+<script src="assets/js/jquery.loading.min.js"></script>
+<script src="scripts/moment.min.js"></script>
+       <script>
+           jQuery(document).ready(function () {
+               var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+               if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
+
+                   $('#googlePlay').hide();
+               }
+               else if (userAgent.match(/Android/i)) {
+
+
+                   $('#iosPlay').hide(); 
+               }
+               else {
+               }
+           });
+
+          
+       </script>
+    </form>
+</body>
+
+<!-- Mirrored from bookmyhsrp.com/OrderCancel.aspx by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 09 Dec 2023 14:35:37 GMT -->
+</html>
